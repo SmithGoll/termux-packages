@@ -1,0 +1,121 @@
+diff -uNr a/src/virglrenderer.c b/src/virglrenderer.c
+--- a/src/virglrenderer.c	2024-04-22 11:09:22.069405503 +0800
++++ b/src/virglrenderer.c	2024-04-22 11:17:34.281405315 +0800
+@@ -791,7 +791,7 @@
+    TRACE_INIT();
+    TRACE_FUNC();
+ 
+-   int ret;
++   int ret,line;
+ 
+    /* VIRGL_RENDERER_THREAD_SYNC is a hint and can be silently ignored */
+    if (!has_eventfd() || getenv("VIRGL_DISABLE_MT"))
+@@ -821,14 +821,20 @@
+ 
+       ret = virgl_resource_table_init(pipe_cbs);
+       if (ret)
++      {
++         line = __LINE__;
+          goto fail;
++      }
+       state.resource_initialized = true;
+    }
+ 
+    if (!state.context_initialized) {
+       ret = virgl_context_table_init();
+       if (ret)
++      {
++         line = __LINE__;
+          goto fail;
++      }
+       state.context_initialized = true;
+    }
+ 
+@@ -845,6 +851,7 @@
+       if (ret) {
+          if (drm_fd >= 0)
+             close(drm_fd);
++         line = __LINE__;
+          goto fail;
+       }
+       state.winsys_initialized = true;
+@@ -857,6 +864,7 @@
+       if (!cbs->create_gl_context || !cbs->destroy_gl_context ||
+           !cbs->make_current) {
+          ret = EINVAL;
++         line = __LINE__;
+          goto fail;
+       }
+ 
+@@ -864,12 +872,14 @@
+ 
+       if (!egl_display) {
+          ret = -1;
++         line = __LINE__;
+          goto fail;
+       }
+       ret = vrend_winsys_init_external(egl_display);
+ 
+       if (ret) {
+          ret = -1;
++         line = __LINE__;
+          goto fail;
+       }
+ 
+@@ -881,6 +891,7 @@
+ 
+       if (!cookie || !cbs) {
+          ret = -1;
++         line = __LINE__;
+          goto fail;
+       }
+ 
+@@ -899,14 +910,20 @@
+ 
+       ret = vrend_renderer_init(&vrend_cbs, renderer_flags);
+       if (ret)
++      {
++         line = __LINE__;
+          goto fail;
++      }
+       state.vrend_initialized = true;
+    }
+ 
+    if (!state.proxy_initialized && (flags & VIRGL_RENDERER_RENDER_SERVER)) {
+       ret = proxy_renderer_init(&proxy_cbs, flags | VIRGL_RENDERER_NO_VIRGL);
+       if (ret)
++      {
++         line = __LINE__;
+          goto fail;
++      }
+       state.proxy_initialized = true;
+    }
+ 
+@@ -919,20 +936,27 @@
+ 
+       ret = drm_renderer_init(drm_fd);
+       if (ret)
++      {
++         line = __LINE__;
+          goto fail;
++      }
+       state.drm_initialized = true;
+    }
+ 
+    if (!state.fence_initialized) {
+       ret = virgl_fence_table_init();
+       if (ret)
++      {
++         line = __LINE__;
+          goto fail;
++      }
+       state.fence_initialized = true;
+    }
+ 
+    return 0;
+ 
+ fail:
++   fprintf(stderr, "virgl_renderer_init:%d failed\n", line);
+    virgl_renderer_cleanup(NULL);
+    return ret;
+ }

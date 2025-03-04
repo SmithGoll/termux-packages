@@ -1,0 +1,21 @@
+diff -uNr weston-14.0.1/libweston/backend-vnc/vnc.c weston-14.0.1.mod/libweston/backend-vnc/vnc.c
+--- weston-14.0.1/libweston/backend-vnc/vnc.c	2024-10-21 21:22:27.000000000 +0800
++++ weston-14.0.1.mod/libweston/backend-vnc/vnc.c	2025-03-05 00:05:14.840904751 +0800
+@@ -844,7 +844,7 @@
+ 
+ 	output->fb_pool = nvnc_fb_pool_new(output->base.width,
+ 					   output->base.height,
+-					   backend->formats[0]->format,
++					   base->compositor->read_format->format,
+ 					   output->base.width);
+ 
+ 	output->display = nvnc_display_new(0, 0);
+@@ -1076,7 +1076,7 @@
+ 	weston_renderer_resize_output(base, &fb_size, NULL);
+ 
+ 	nvnc_fb_pool_resize(output->fb_pool, target_mode->width,
+-			    target_mode->height, DRM_FORMAT_XRGB8888,
++			    target_mode->height, base->compositor->read_format->format,
+ 			    target_mode->width);
+ 
+ 	return 0;

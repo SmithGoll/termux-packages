@@ -1,7 +1,7 @@
 diff -urNp a/sub/vobsub.c b/sub/vobsub.c
 --- a/sub/vobsub.c	2021-01-24 02:22:09.000000000 +0800
-+++ b/sub/vobsub.c	2026-03-15 11:31:19.376308862 +0800
-@@ -1285,22 +1285,22 @@ void vobsub_out_output(void *me, const u
++++ b/sub/vobsub.c	2026-03-15 12:11:05.450193849 +0800
+@@ -1285,22 +1285,23 @@ void vobsub_out_output(void *me, const u
             breaks Windows' Vobsub */
          if (vob->fidx && (!last_pts_set || last_pts != pts)) {
              static unsigned int last_h = 9999, last_m = 9999, last_s = 9999, last_ms = 9999;
@@ -18,7 +18,8 @@ diff -urNp a/sub/vobsub.c b/sub/vobsub.c
 -            if (h != last_h || m != last_m || (unsigned int) s != last_s || ms != last_ms) {
 +            unsigned int h, m, s, ms;
 +
-+            ms = pts / 90;
++            // ms = pts * 1000 / 90
++            ms = (pts / 9) * 100;
 +            h = ms / (3600 * 1000);
 +            ms -= h * 3600 * 1000;
 +            m = ms / (60 * 1000);

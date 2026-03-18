@@ -1,6 +1,18 @@
+diff -urNp a/mencoder.c b/mencoder.c
+--- a/mencoder.c	2021-01-26 03:10:32.000000000 +0800
++++ b/mencoder.c	2026-03-18 11:55:13.008773621 +0800
+@@ -1646,7 +1646,7 @@ if(sh_audio && !demuxer2){
+      int len;
+      while((len=ds_get_packet_sub(d_dvdsub,&packet, NULL, NULL))>0){
+ 	 mp_msg(MSGT_MENCODER,MSGL_V,"\rDVD sub: len=%d  v_pts=%5.3f  s_pts=%5.3f  \n",len,sh_video->pts,d_dvdsub->pts);
+-	     vobsub_out_output(vobsub_writer,packet,len,v_muxer_time + d_dvdsub->pts - sh_video->pts);
++	     vobsub_out_output(vobsub_writer,packet,len,v_muxer_time + d_dvdsub->pts);
+      }
+  }
+  else
 diff -urNp a/sub/vobsub.c b/sub/vobsub.c
 --- a/sub/vobsub.c	2021-01-24 02:22:09.000000000 +0800
-+++ b/sub/vobsub.c	2026-03-15 12:11:05.450193849 +0800
++++ b/sub/vobsub.c	2026-03-18 11:51:29.844773706 +0800
 @@ -1285,22 +1285,23 @@ void vobsub_out_output(void *me, const u
             breaks Windows' Vobsub */
          if (vob->fidx && (!last_pts_set || last_pts != pts)) {
@@ -17,15 +29,15 @@ diff -urNp a/sub/vobsub.c b/sub/vobsub.c
 -                ms = 0;
 -            if (h != last_h || m != last_m || (unsigned int) s != last_s || ms != last_ms) {
 +            unsigned int h, m, s, ms;
++            unsigned long long ms_tmp;
 +
-+            // ms = pts * 1000 / 90
-+            ms = (pts / 9) * 100;
-+            h = ms / (3600 * 1000);
-+            ms -= h * 3600 * 1000;
-+            m = ms / (60 * 1000);
-+            ms -= m * 60 * 1000;
-+            s = ms / 1000;
-+            ms %= 1000;
++            ms_tmp = pts * 1000;
++            h = ms_tmp / (3600 * 1000);
++            ms_tmp -= h * 3600 * 1000;
++            m = ms_tmp / (60 * 1000);
++            ms_tmp -= m * 60 * 1000;
++            s = ms_tmp / 1000;
++            ms = ms_tmp % 1000;
 +
 +            if (h != last_h || m != last_m || s != last_s || ms != last_ms) {
                  fprintf(vob->fidx, "timestamp: %02u:%02u:%02u:%03u, filepos: %09lx\n",

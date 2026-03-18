@@ -1,12 +1,12 @@
 diff -urNp a/mencoder.c b/mencoder.c
 --- a/mencoder.c	2021-01-26 03:10:32.000000000 +0800
-+++ b/mencoder.c	2026-03-18 11:55:13.008773621 +0800
++++ b/mencoder.c	2026-03-18 12:19:20.654919259 +0800
 @@ -1646,7 +1646,7 @@ if(sh_audio && !demuxer2){
       int len;
       while((len=ds_get_packet_sub(d_dvdsub,&packet, NULL, NULL))>0){
  	 mp_msg(MSGT_MENCODER,MSGL_V,"\rDVD sub: len=%d  v_pts=%5.3f  s_pts=%5.3f  \n",len,sh_video->pts,d_dvdsub->pts);
 -	     vobsub_out_output(vobsub_writer,packet,len,v_muxer_time + d_dvdsub->pts - sh_video->pts);
-+	     vobsub_out_output(vobsub_writer,packet,len,v_muxer_time + d_dvdsub->pts);
++	     vobsub_out_output(vobsub_writer,packet,len,d_dvdsub->pts);
       }
   }
   else

@@ -17,7 +17,7 @@ diff -urNp tigervnc-1.16.0/unix/xserver/hw/vnc/Makefile.am tigervnc-1.16.0-mod/u
  libvnc_la_LTLIBRARIES = libvnc.la
 diff -urNp tigervnc-1.16.0/unix/xserver/hw/vnc/vncDRI3.c tigervnc-1.16.0-mod/unix/xserver/hw/vnc/vncDRI3.c
 --- tigervnc-1.16.0/unix/xserver/hw/vnc/vncDRI3.c	2026-01-23 18:05:49.000000000 +0800
-+++ tigervnc-1.16.0-mod/unix/xserver/hw/vnc/vncDRI3.c	2026-03-29 21:06:19.993890610 +0800
++++ tigervnc-1.16.0-mod/unix/xserver/hw/vnc/vncDRI3.c	2026-03-29 23:23:16.633887476 +0800
 @@ -20,46 +20,24 @@
  #include <dix-config.h>
  #endif
@@ -72,7 +72,7 @@ diff -urNp tigervnc-1.16.0/unix/xserver/hw/vnc/vncDRI3.c tigervnc-1.16.0-mod/uni
  
  #define wrap(priv, real, mem, func) {\
    priv->mem = real->mem; \
-@@ -70,468 +48,116 @@ typedef struct vncDRI3PixmapPrivate {
+@@ -70,468 +48,107 @@ typedef struct vncDRI3PixmapPrivate {
    real->mem = priv->mem; \
  }
  
@@ -218,18 +218,18 @@ diff -urNp tigervnc-1.16.0/unix/xserver/hw/vnc/vncDRI3.c tigervnc-1.16.0-mod/uni
  {
 -  ScreenPtr screen = window->drawable.pScreen;
 -  PixmapPtr pixmap = data;
-+    (void)bpp;
- 
--  if ((*screen->GetWindowPixmap)(window) == pixmap)
--    window->drawable.serialNumber = NEXT_SERIAL_NUMBER;
 +    void *addr;
 +    PixmapPtr pixmap;
 +    const CARD64 RAW_MMAPPABLE_FD = 1274;
  
+-  if ((*screen->GetWindowPixmap)(window) == pixmap)
+-    window->drawable.serialNumber = NEXT_SERIAL_NUMBER;
+-
 -  return WT_WALKCHILDREN;
 -}
 -#endif
--
++    (void)bpp;
+ 
 -static int vncFdFromPixmap(ScreenPtr screen, PixmapPtr pixmap,
 -                           CARD16 *stride, CARD32 *size)
 -{
@@ -457,8 +457,8 @@ diff -urNp tigervnc-1.16.0/unix/xserver/hw/vnc/vncDRI3.c tigervnc-1.16.0-mod/uni
 -  (void)yoff;
 -
 -  return vncDRI3SyncPixmapToGPU(pixmap);
--}
--
+ }
+ 
 -Bool vncDRI3SyncDrawableFromGPU(DrawablePtr drawable)
 -{
 -  PixmapPtr pixmap;
@@ -469,8 +469,8 @@ diff -urNp tigervnc-1.16.0/unix/xserver/hw/vnc/vncDRI3.c tigervnc-1.16.0-mod/uni
 -  (void)yoff;
 -
 -  return vncDRI3SyncPixmapFromGPU(pixmap);
- }
- 
+-}
+-
 -static const dri3_screen_info_rec vncDRI3ScreenInfo = {
 -  .version = 1,
 -
@@ -492,7 +492,8 @@ diff -urNp tigervnc-1.16.0/unix/xserver/hw/vnc/vncDRI3.c tigervnc-1.16.0-mod/uni
 -  vncDRI3ScreenPrivatePtr screenPriv = vncDRI3ScreenPrivate(screen);
 -
 -  unwrap(screenPriv, screen, CloseScreen);
--
++    lorieDRI3ScreenPrivatePtr screenPriv;
+ 
 -  unwrap(screenPriv, screen, DestroyPixmap);
 -
 -#ifdef HAVE_GBM
@@ -502,8 +503,7 @@ diff -urNp tigervnc-1.16.0/unix/xserver/hw/vnc/vncDRI3.c tigervnc-1.16.0-mod/uni
 -  close(screenPriv->fd);
 -  screenPriv->fd = -1;
 -#endif
-+    lorieDRI3ScreenPrivatePtr screenPriv;
- 
+-
 -  return (*screen->CloseScreen)(screen);
 -}
 -
@@ -515,17 +515,11 @@ diff -urNp tigervnc-1.16.0/unix/xserver/hw/vnc/vncDRI3.c tigervnc-1.16.0-mod/uni
 -   * We don't queue any gbm operations, so we don't have to do anything
 -   * more than simply activate this extension.
 -   */
-+    /*
-+     * We don't queue any gbm operations, so we don't have to do anything
-+     * more than simply activate this extension.
-+     */
- #ifdef HAVE_XSHMFENCE
+-#ifdef HAVE_XSHMFENCE
 -  if (!miSyncShmScreenInit(screen))
 -    return FALSE;
-+    if (!miSyncShmScreenInit(screen))
-+        return FALSE;
- #endif
- 
+-#endif
+-
 -  /* Empty render node is interpreted as disabling DRI3 */
 -  if (renderNode[0] == '\0')
 -    return TRUE;
